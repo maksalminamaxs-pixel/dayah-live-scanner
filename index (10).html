@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4faf7">
+  <title>DAYAH DARUSSALAM · Live QR Scanner</title>
+  <style>
+    :root{color-scheme:light;--ink:#29464d;--muted:#71848a;--line:#d7e8e1;--green:#4b927e}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:linear-gradient(145deg,#f5faf6,#eaf4f3 55%,#eff5f8);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);padding:18px 14px calc(24px + env(safe-area-inset-bottom))}
+    .wrap{max-width:620px;margin:0 auto}
+    .brand{text-align:center;padding:8px 8px 18px}
+    .brand-mark{width:54px;height:54px;margin:0 auto 9px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#d7eee2,#dcecf4);color:#3f8174;font-size:24px;font-weight:850;box-shadow:0 7px 24px rgba(74,123,106,.12)}
+    h1{font-size:20px;line-height:1.25;margin:0;font-weight:800;letter-spacing:.01em}
+    .sub{margin:5px 0 0;color:var(--muted);font-size:12px;letter-spacing:.12em;font-weight:700}
+    .card{background:rgba(255,255,255,.92);border:1px solid rgba(195,220,210,.9);border-radius:22px;padding:16px;box-shadow:0 12px 32px rgba(46,93,79,.08)}
+    .status{display:flex;align-items:center;gap:9px;padding:11px 12px;margin-bottom:13px;border-radius:13px;background:#f2f7f4;color:var(--muted);font-size:13px;font-weight:650;min-height:44px}
+    .status-dot{width:9px;height:9px;border-radius:50%;background:#a7b9b2;flex:none}
+    .status.good{background:#eaf6ef;color:#39795f}.status.good .status-dot{background:#48a278}
+    .status.bad{background:#fff0ee;color:#a14e48}.status.bad .status-dot{background:#c66b63}
+    .reader-shell{position:relative;overflow:hidden;border-radius:17px;background:#172c2a;min-height:300px;display:grid;place-items:center}
+    #cameraVideo{display:none;width:100%;height:auto;max-height:70vh;object-fit:contain;background:#172c2a}
+    .reader-shell.active #cameraVideo{display:block}
+    .camera-placeholder{min-height:300px;display:grid;place-items:center;padding:25px;color:#c8d9d3;text-align:center;font-size:14px}
+    .reader-shell.active .camera-placeholder{display:none}
+    .aim-frame{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(74%,340px);aspect-ratio:1;border:2px solid rgba(255,255,255,.22);border-radius:18px;pointer-events:none}
+    .reader-shell.active .aim-frame{display:block}
+    .aim-frame:before,.aim-frame:after{content:"";position:absolute;inset:-2px;border-radius:18px;background:linear-gradient(#fff,#fff) left top/34px 4px no-repeat,linear-gradient(#fff,#fff) left top/4px 34px no-repeat,linear-gradient(#fff,#fff) right top/34px 4px no-repeat,linear-gradient(#fff,#fff) right top/4px 34px no-repeat,linear-gradient(#fff,#fff) left bottom/34px 4px no-repeat,linear-gradient(#fff,#fff) left bottom/4px 34px no-repeat,linear-gradient(#fff,#fff) right bottom/34px 4px no-repeat,linear-gradient(#fff,#fff) right bottom/4px 34px no-repeat}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+    button{min-height:47px;border:0;border-radius:13px;padding:10px 14px;background:var(--green);color:white;font-size:14px;font-weight:750;cursor:pointer;box-shadow:0 5px 13px rgba(66,133,112,.15)}
+    button.secondary{background:#edf5f0;color:#52736b;box-shadow:none;border:1px solid var(--line)}button:disabled{opacity:.55;cursor:not-allowed}
+    .hint{font-size:12px;line-height:1.55;color:var(--muted);margin:13px 2px 2px}
+    .result{margin-top:13px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfdfb;min-height:48px;font-size:13px;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+    .result.success{background:#edf8f0;border-color:#cde8d4;color:#39795f}.result.error{background:#fff2ef;border-color:#f0d5d0;color:#a14e48}.result.duplicate{background:#fff8e9;border-color:#f0e0bd;color:#89652e}
+    .foot{text-align:center;color:#94a6a0;font-size:11px;padding:15px 8px 0}
+    #scanCanvas{display:none}
+    @media(max-width:390px){body{padding-left:10px;padding-right:10px}.card{padding:12px}.actions{grid-template-columns:1fr}.brand{padding-bottom:13px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="brand"><div class="brand-mark">D</div><h1>DAYAH DARUSSALAM</h1><p class="sub">SCANNER ABSENSI · LHOK MERBO</p></header>
+    <section class="card">
+      <div id="status" class="status"><span class="status-dot"></span><span id="statusText">Memeriksa koneksi aplikasi...</span></div>
+      <div class="reader-shell" id="readerShell">
+        <video id="cameraVideo" autoplay muted playsinline></video>
+        <div class="camera-placeholder" id="cameraPlaceholder">Kamera belum diaktifkan.</div>
+        <div class="aim-frame" aria-hidden="true"></div>
+      </div>
+      <canvas id="scanCanvas"></canvas>
+      <div class="actions"><button id="startButton" type="button" disabled>Mulai Kamera Belakang</button><button id="stopButton" class="secondary" type="button" disabled>Hentikan Kamera</button></div>
+      <div id="result" class="result">Scanner akan mengirim hasil QR ke aplikasi dan menampilkan hasil penyimpanan.</div>
+      <p class="hint">Arahkan kamera ke seluruh QR. Usahakan kartu tidak silau dan QR memenuhi sekitar sepertiga area kamera. Scanner membaca seluruh gambar kamera, bukan hanya kotak panduan.</p>
+    </section>
+    <footer class="foot">DAYAH DARUSSALAM · LHOK MERBO</footer>
+  </main>
+<script>
+(function(){
+  'use strict';
+  var nonce=new URLSearchParams(location.search).get('dayahNonce')||'';
+  var parentOrigin='';
+  var parentReady=false;
+  var statusBox=document.getElementById('status');
+  var statusText=document.getElementById('statusText');
+  var resultBox=document.getElementById('result');
+  var startButton=document.getElementById('startButton');
+  var stopButton=document.getElementById('stopButton');
+  var readerShell=document.getElementById('readerShell');
+  var video=document.getElementById('cameraVideo');
+  var canvas=document.getElementById('scanCanvas');
+  var context=canvas.getContext('2d',{willReadFrequently:true});
+  var cameraStream=null,scannerRunning=false,waitingForApp=false,lastCode='',lastCodeAt=0;
+  var scanTimer=null,responseTimer=null,frameCount=0;
+
+  function setStatus(message,state){statusText.textContent=message;statusBox.className='status'+(state?' '+state:'');}
+  function setResult(message,state){resultBox.textContent=message;resultBox.className='result'+(state?' '+state:'');}
+  function validParentOrigin(value){
+    try{var u=new URL(value);var h=u.hostname.toLowerCase();return u.protocol==='https:'&&(h==='script.google.com'||h==='script.googleusercontent.com'||h.endsWith('.script.googleusercontent.com')||h.endsWith('-script.googleusercontent.com'));}
+    catch(e){return false;}
+  }
+  if(!nonce||nonce.length<24||!window.opener){setStatus('Scanner tidak dibuka dari aplikasi DAYAH.','bad');setResult('Tutup halaman ini, kembali ke menu Absensi QR, lalu tekan Buka Live Scanner.','error');return;}
+  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setStatus('Browser tidak menyediakan akses kamera.','bad');setResult('Gunakan Chrome terbaru melalui alamat HTTPS.','error');return;}
+
+  // Gunakan satu mesin pembaca yang pasti: jsQR. Jangan membiarkan keberadaan
+  // BarcodeDetector menutupi kegagalan pemuatan jsQR dan membuat scanner diam.
+  function loadQrLibrary(){
+    if(typeof window.jsQR==='function')return Promise.resolve();
+    var urls=[
+      'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
+      'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js'
+    ];
+    function tryUrl(index){
+      if(index>=urls.length)return Promise.reject(new Error('Pustaka QR tidak dapat dimuat dari kedua sumber. Periksa koneksi internet/CDN pada HP.'));
+      return new Promise(function(resolve,reject){
+        var script=document.createElement('script');
+        var finished=false;
+        var timer=setTimeout(function(){if(finished)return;finished=true;script.remove();reject(new Error('Waktu tunggu memuat pustaka QR habis.'));},12000);
+        script.src=urls[index];
+        script.async=true;
+        script.onload=function(){
+          if(finished)return;finished=true;clearTimeout(timer);
+          if(typeof window.jsQR==='function')resolve();
+          else reject(new Error('File pustaka dimuat tetapi fungsi jsQR tidak ditemukan.'));
+        };
+        script.onerror=function(){if(finished)return;finished=true;clearTimeout(timer);script.remove();reject(new Error('Sumber pustaka QR tidak dapat diakses.'));};
+        document.head.appendChild(script);
+      }).catch(function(){return tryUrl(index+1);});
+    }
+    return tryUrl(0);
+  }
+
+  window.addEventListener('message',function(event){
+    if(event.source!==window.opener)return;
+    var data=event.data||{};
+    if(data.type==='DAYAH_SCANNER_INIT'&&data.nonce===nonce&&validParentOrigin(event.origin)){
+      parentOrigin=event.origin;parentReady=true;startButton.disabled=false;
+      setStatus('Terhubung aman ke aplikasi DAYAH. Kamera siap diaktifkan.','good');
+      setResult('Koneksi terverifikasi. Tekan Mulai Kamera Belakang.');
+      window.opener.postMessage({type:'DAYAH_SCANNER_ACK',nonce:nonce},parentOrigin);
+      return;
+    }
+    if(!parentReady||event.origin!==parentOrigin||data.type!=='DAYAH_QR_RESULT'||data.nonce!==nonce)return;
+    var result=data.result||{};waitingForApp=false;
+    if(responseTimer){clearTimeout(responseTimer);responseTimer=null;}
+    if(result.success){setStatus('Absensi berhasil tersimpan di database.','good');setResult(result.message||'Absensi berhasil dicatat.','success');}
+    else if(result.duplicate){setStatus('Santri sudah tercatat pada sesi ini.','');setResult(result.message||'Santri sudah melakukan absensi.','duplicate');}
+    else{setStatus('Absensi tidak tersimpan.','bad');setResult(result.message||'Server tidak dapat memproses QR.','error');}
+    // Lanjutkan pemindaian agar santri berikutnya dapat langsung scan.
+    if(scannerRunning&&!scanTimer)scanTimer=setTimeout(scanFrame,700);
+  });
+
+  setStatus('Memuat mesin pembaca QR...');
+  setResult('Mengunduh pustaka pemindai QR. Kamera belum diaktifkan.');
+  loadQrLibrary().then(function(){
+    setStatus('Mesin pembaca QR siap. Memverifikasi aplikasi...','good');
+    setResult('Pustaka jsQR berhasil dimuat. Menunggu verifikasi koneksi aplikasi DAYAH.');
+    window.opener.postMessage({type:'DAYAH_SCANNER_HELLO',nonce:nonce},'*');
+  }).catch(function(error){
+    setStatus('Mesin pembaca QR gagal dimuat.','bad');
+    setResult(error&&error.message?error.message:'Pustaka QR tidak tersedia.','error');
+  });
+
+  function onQrDecoded(decodedText){
+    if(!parentReady||waitingForApp)return;
+    var now=Date.now();
+    if(decodedText===lastCode&&now-lastCodeAt<2600)return;
+    lastCode=decodedText;lastCodeAt=now;
+    var prefix='DAYAH-DARUSSALAM:QR1:';
+    if(String(decodedText).indexOf(prefix)!==0){setResult('QR terdeteksi, tetapi bukan QR santri DAYAH DARUSSALAM.','error');return;}
+    var qrToken=String(decodedText).slice(prefix.length).trim();
+    if(!/^[a-f0-9]{32,160}$/i.test(qrToken)){setResult('QR terdeteksi tetapi isi token tidak valid. Buat ulang QR santri dari aplikasi.','error');return;}
+    waitingForApp=true;
+    setStatus('QR berhasil dibaca. Mengirim ke aplikasi...','good');
+    setResult('QR terdeteksi. Menunggu validasi server dan penyimpanan ABSENSI...');
+    try{
+      window.opener.postMessage({type:'DAYAH_QR_SCAN',nonce:nonce,qrText:decodedText},parentOrigin);
+      responseTimer=setTimeout(function(){
+        if(!waitingForApp)return;
+        waitingForApp=false;setStatus('Aplikasi belum memberi jawaban.','bad');
+        setResult('Tidak ada balasan dari aplikasi DAYAH. Periksa koneksi tab aplikasi, lalu scan kembali.','error');
+        if(scannerRunning&&!scanTimer)scanTimer=setTimeout(scanFrame,700);
+      },20000);
+    }
+    catch(error){waitingForApp=false;setStatus('Pengiriman ke aplikasi gagal.','bad');setResult(error.message||'Koneksi ke aplikasi terputus.','error');}
+  }
+
+  function scanJsQrFrame(){
+    if(typeof window.jsQR!=='function'||video.readyState<2||!video.videoWidth||!video.videoHeight)return null;
+    var sourceWidth=video.videoWidth,sourceHeight=video.videoHeight;
+    var scale=Math.min(1,1440/Math.max(sourceWidth,sourceHeight));
+    var width=Math.max(1,Math.round(sourceWidth*scale));
+    var height=Math.max(1,Math.round(sourceHeight*scale));
+    canvas.width=width;canvas.height=height;
+    context.drawImage(video,0,0,width,height);
+    var image=context.getImageData(0,0,width,height);
+    var options={inversionAttempts:(frameCount%8===0?'attemptBoth':'dontInvert')};
+    var code=window.jsQR(image.data,width,height,options);
+    if(code&&code.data)return code.data;
+
+    // Pass kedua: crop area tengah dan perbesar untuk QR kecil yang berada di depan kamera.
+    if(frameCount%2===0){
+      var cropSize=Math.floor(Math.min(sourceWidth,sourceHeight)*0.88);
+      if(cropSize>0){
+        var sx=Math.floor((sourceWidth-cropSize)/2),sy=Math.floor((sourceHeight-cropSize)/2);
+        var cropScale=Math.min(1.25,1100/cropSize);
+        var cw=Math.max(1,Math.round(cropSize*cropScale));
+        canvas.width=cw;canvas.height=cw;
+        context.drawImage(video,sx,sy,cropSize,cropSize,0,0,cw,cw);
+        var cropped=context.getImageData(0,0,cw,cw);
+        code=window.jsQR(cropped.data,cw,cw,{inversionAttempts:'attemptBoth'});
+        if(code&&code.data)return code.data;
+      }
+    }
+    return null;
+  }
+
+  function scanFrame(){
+    scanTimer=null;
+    if(!scannerRunning||waitingForApp)return;
+    frameCount++;
+    var decoded='';
+    try{decoded=scanJsQrFrame()||'';}
+    catch(error){setResult('Pembacaan frame gagal: '+(error.message||'kesalahan gambar kamera'),'error');}
+    if(decoded){onQrDecoded(decoded);}
+    else if(frameCount%24===0){
+      setStatus('Kamera aktif · jsQR memeriksa '+frameCount+' frame.','good');
+      setResult('Mesin QR aktif tetapi belum menemukan kode. Dekatkan QR, naikkan kecerahan layar/kartu, dan pastikan seluruh empat sudut QR terlihat.');
+    }
+    if(scannerRunning&&!waitingForApp)scanTimer=setTimeout(scanFrame,180);
+  }
+
+  async function startCamera(){
+    if(scannerRunning||!parentReady)return;
+    startButton.disabled=true;
+    setStatus('Meminta izin kamera belakang...');
+    setResult('Izinkan akses kamera ketika browser meminta izin.');
+    try{
+      cameraStream=await navigator.mediaDevices.getUserMedia({
+        audio:false,
+        video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}}
+      });
+      video.srcObject=cameraStream;
+      await video.play();
+      var track=cameraStream.getVideoTracks()[0];
+      try{
+        var caps=track&&track.getCapabilities?track.getCapabilities():{};
+        if(caps.focusMode&&caps.focusMode.indexOf('continuous')!==-1){
+          await track.applyConstraints({advanced:[{focusMode:'continuous'}]});
+        }
+      }catch(ignoreFocusError){}
+      scannerRunning=true;frameCount=0;readerShell.classList.add('active');
+      startButton.disabled=true;stopButton.disabled=false;
+      setStatus('Kamera aktif. Mesin pembaca QR sedang memindai seluruh gambar.','good');
+      setResult('Memindai langsung. QR akan dikirim otomatis setelah berhasil dikenali.');
+      scanFrame();
+    }catch(error){
+      stopCameraTracks();startButton.disabled=!parentReady;
+      setStatus('Kamera tidak dapat diaktifkan.','bad');
+      setResult(error&&error.message?error.message:'Periksa izin kamera dan pastikan kamera tidak dipakai aplikasi lain.','error');
+    }
+  }
+
+  function stopCameraTracks(){
+    scannerRunning=false;
+    if(scanTimer){clearTimeout(scanTimer);scanTimer=null;}
+    if(responseTimer){clearTimeout(responseTimer);responseTimer=null;}
+    waitingForApp=false;
+    if(cameraStream){cameraStream.getTracks().forEach(function(track){track.stop();});cameraStream=null;}
+    video.pause();video.srcObject=null;readerShell.classList.remove('active');
+    stopButton.disabled=true;startButton.disabled=!parentReady;
+  }
+
+  startButton.addEventListener('click',startCamera);
+  stopButton.addEventListener('click',function(){
+    stopCameraTracks();setStatus('Kamera dihentikan.','');setResult('Tekan Mulai Kamera Belakang untuk melanjutkan.');
+  });
+  window.addEventListener('beforeunload',stopCameraTracks);
+})();
+</script>
+</body>
+</html>
