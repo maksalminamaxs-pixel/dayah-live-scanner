@@ -88,7 +88,7 @@
       var parsed=new URL(value);
       if(parsed.protocol!=='https:')return false;
       var host=parsed.hostname.toLowerCase();
-      return host==='script.google.com'||host==='script.googleusercontent.com'||host.endsWith('.script.googleusercontent.com');
+      return host==='script.google.com'||host==='script.googleusercontent.com'||host.endsWith('.script.googleusercontent.com')||host.endsWith('-script.googleusercontent.com');
     }catch(error){return false;}
   }
 
