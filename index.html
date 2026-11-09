@@ -1,12 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#eef7f2">
-  <title>Scanner Absensi – DAYAH DARUSSALAM</title>
+  <meta name="theme-color" content="#f4faf7">
+  <title>DAYAH DARUSSALAM · Live QR Scanner</title>
   <style>
-    :root{color-scheme:light;--ink:#294a48;--muted:#718784;--mint:#dff1e8;--blue:#e6f1f6;--line:#d9e8e1;--green:#438d76;--red:#b75e58;--amber:#99713b}
+    :root{color-scheme:light;--ink:#29464d;--muted:#71848a;--line:#d7e8e1;--green:#4b927e}
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:linear-gradient(145deg,#f5faf6,#eaf4f3 55%,#eff5f8);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);padding:18px 14px calc(24px + env(safe-area-inset-bottom))}
     .wrap{max-width:620px;margin:0 auto}
@@ -14,26 +14,21 @@
     .brand-mark{width:54px;height:54px;margin:0 auto 9px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#d7eee2,#dcecf4);color:#3f8174;font-size:24px;font-weight:850;box-shadow:0 7px 24px rgba(74,123,106,.12)}
     h1{font-size:20px;line-height:1.25;margin:0;font-weight:800;letter-spacing:.01em}
     .sub{margin:5px 0 0;color:var(--muted);font-size:12px;letter-spacing:.12em;font-weight:700}
-    .card{background:rgba(255,255,255,.88);border:1px solid rgba(195,220,210,.85);border-radius:22px;padding:16px;box-shadow:0 12px 32px rgba(46,93,79,.08)}
+    .card{background:rgba(255,255,255,.92);border:1px solid rgba(195,220,210,.9);border-radius:22px;padding:16px;box-shadow:0 12px 32px rgba(46,93,79,.08)}
     .status{display:flex;align-items:center;gap:9px;padding:11px 12px;margin-bottom:13px;border-radius:13px;background:#f2f7f4;color:var(--muted);font-size:13px;font-weight:650;min-height:44px}
     .status-dot{width:9px;height:9px;border-radius:50%;background:#a7b9b2;flex:none}
     .status.good{background:#eaf6ef;color:#39795f}.status.good .status-dot{background:#48a278}
     .status.bad{background:#fff0ee;color:#a14e48}.status.bad .status-dot{background:#c66b63}
-    .reader-shell{overflow:hidden;border-radius:17px;background:#172c2a;min-height:240px;display:grid;place-items:center}
-    #reader{width:100%;min-height:240px}
+    .reader-shell{overflow:hidden;border-radius:17px;background:#172c2a;min-height:260px;display:grid;place-items:center}
+    #reader{width:100%;min-height:260px}
     #reader video{width:100%!important;object-fit:cover;border-radius:17px}
-    #reader img{max-width:100%}
-    #reader__scan_region{min-height:240px}
-    #reader__dashboard_section{display:none!important}
+    #reader img{max-width:100%}#reader__scan_region{min-height:260px}#reader__dashboard_section{display:none!important}
     .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
-    button{min-height:47px;border:0;border-radius:13px;padding:10px 14px;background:#4b927e;color:white;font-size:14px;font-weight:750;cursor:pointer;box-shadow:0 5px 13px rgba(66,133,112,.15)}
-    button.secondary{background:#edf5f0;color:#52736b;box-shadow:none;border:1px solid var(--line)}
-    button:disabled{opacity:.55;cursor:not-allowed}
+    button{min-height:47px;border:0;border-radius:13px;padding:10px 14px;background:var(--green);color:white;font-size:14px;font-weight:750;cursor:pointer;box-shadow:0 5px 13px rgba(66,133,112,.15)}
+    button.secondary{background:#edf5f0;color:#52736b;box-shadow:none;border:1px solid var(--line)}button:disabled{opacity:.55;cursor:not-allowed}
     .hint{font-size:12px;line-height:1.55;color:var(--muted);margin:13px 2px 2px}
-    .result{margin-top:13px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfdfb;min-height:48px;font-size:13px;line-height:1.45;color:var(--muted)}
-    .result.success{background:#edf8f0;border-color:#cde8d4;color:#39795f}
-    .result.error{background:#fff2ef;border-color:#f0d5d0;color:#a14e48}
-    .result.duplicate{background:#fff8e9;border-color:#f0e0bd;color:#89652e}
+    .result{margin-top:13px;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfdfb;min-height:48px;font-size:13px;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+    .result.success{background:#edf8f0;border-color:#cde8d4;color:#39795f}.result.error{background:#fff2ef;border-color:#f0d5d0;color:#a14e48}.result.duplicate{background:#fff8e9;border-color:#f0e0bd;color:#89652e}
     .foot{text-align:center;color:#94a6a0;font-size:11px;padding:15px 8px 0}
     @media(max-width:390px){body{padding-left:10px;padding-right:10px}.card{padding:12px}.actions{grid-template-columns:1fr}.brand{padding-bottom:13px}}
   </style>
@@ -41,171 +36,86 @@
 </head>
 <body>
   <main class="wrap">
-    <header class="brand">
-      <div class="brand-mark">D</div>
-      <h1>DAYAH DARUSSALAM</h1>
-      <p class="sub">SCANNER ABSENSI · LHOK MERBO</p>
-    </header>
+    <header class="brand"><div class="brand-mark">D</div><h1>DAYAH DARUSSALAM</h1><p class="sub">SCANNER ABSENSI · LHOK MERBO</p></header>
     <section class="card">
-      <div id="status" class="status"><span class="status-dot"></span><span id="statusText">Memeriksa koneksi ke aplikasi...</span></div>
+      <div id="status" class="status"><span class="status-dot"></span><span id="statusText">Memeriksa koneksi aplikasi...</span></div>
       <div class="reader-shell"><div id="reader"></div></div>
-      <div class="actions">
-        <button id="startButton" type="button" disabled>Mulai Kamera Belakang</button>
-        <button id="stopButton" class="secondary" type="button" disabled>Hentikan Kamera</button>
-      </div>
-      <div id="result" class="result">Arahkan QR santri ke kotak pemindai. Kamera akan terus aktif sampai dihentikan.</div>
-      <p class="hint">Gunakan kamera belakang. Pastikan seluruh QR terlihat, tidak silau, dan kartu berada dalam area kotak. Hanya QR resmi DAYAH DARUSSALAM yang diterima.</p>
+      <div class="actions"><button id="startButton" type="button" disabled>Mulai Kamera Belakang</button><button id="stopButton" class="secondary" type="button" disabled>Hentikan Kamera</button></div>
+      <div id="result" class="result">Scanner akan mengirim hasil QR ke aplikasi dan menampilkan hasil penyimpanan.</div>
+      <p class="hint">Gunakan kamera belakang. Pastikan seluruh QR terlihat, fokus kamera tajam, dan kartu tidak silau. Jangan tutup tab aplikasi DAYAH selama pemindaian.</p>
     </section>
     <footer class="foot">DAYAH DARUSSALAM · LHOK MERBO</footer>
   </main>
 <script>
 (function(){
   'use strict';
-  var params=new URLSearchParams(window.location.search);
-  var nonce=params.get('dayahNonce')||'';
-  var returnOrigin=params.get('returnOrigin')||'';
+  var nonce=new URLSearchParams(location.search).get('dayahNonce')||'';
+  var parentOrigin='';
+  var parentReady=false;
   var statusBox=document.getElementById('status');
   var statusText=document.getElementById('statusText');
   var resultBox=document.getElementById('result');
   var startButton=document.getElementById('startButton');
   var stopButton=document.getElementById('stopButton');
-  var scanner=null;
-  var scannerRunning=false;
-  var waitingForApp=false;
-  var lastCode='';
-  var lastCodeAt=0;
-
-  function setStatus(message,state){
-    statusText.textContent=message;
-    statusBox.className='status'+(state?' '+state:'');
-  }
-  function setResult(message,state){
-    resultBox.textContent=message;
-    resultBox.className='result'+(state?' '+state:'');
-  }
+  var scanner=null,scannerRunning=false,waitingForApp=false,lastCode='',lastCodeAt=0;
+  function setStatus(message,state){statusText.textContent=message;statusBox.className='status'+(state?' '+state:'');}
+  function setResult(message,state){resultBox.textContent=message;resultBox.className='result'+(state?' '+state:'');}
   function validParentOrigin(value){
-    try{
-      var parsed=new URL(value);
-      if(parsed.protocol!=='https:')return false;
-      var host=parsed.hostname.toLowerCase();
-      return host==='script.google.com'||host==='script.googleusercontent.com'||host.endsWith('.script.googleusercontent.com')||host.endsWith('-script.googleusercontent.com');
-    }catch(error){return false;}
+    try{var u=new URL(value);var h=u.hostname.toLowerCase();return u.protocol==='https:'&&(h==='script.google.com'||h==='script.googleusercontent.com'||h.endsWith('.script.googleusercontent.com')||h.endsWith('-script.googleusercontent.com'));}
+    catch(e){return false;}
   }
+  if(!nonce||nonce.length<24||!window.opener){setStatus('Scanner tidak dibuka dari aplikasi DAYAH.','bad');setResult('Tutup halaman ini, kembali ke menu Absensi QR, lalu tekan Buka Live Scanner.','error');return;}
+  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setStatus('Browser tidak menyediakan akses kamera.','bad');setResult('Gunakan Chrome atau Safari terbaru melalui alamat HTTPS.','error');return;}
+  if(typeof Html5Qrcode==='undefined'||typeof Html5QrcodeSupportedFormats==='undefined'){setStatus('Pustaka QR belum dapat dimuat.','bad');setResult('Periksa koneksi internet lalu muat ulang halaman scanner.','error');return;}
+  scanner=new Html5Qrcode('reader',{formatsToSupport:[Html5QrcodeSupportedFormats.QR_CODE],verbose:false});
 
-  if(!nonce||nonce.length<24||!window.opener||!validParentOrigin(returnOrigin)){
-    setStatus('Scanner harus dibuka dari menu Absensi aplikasi DAYAH.','bad');
-    setResult('Koneksi aplikasi tidak valid. Tutup halaman ini, kembali ke aplikasi, lalu tekan Buka Live Scanner.','error');
-    return;
-  }
-  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    setStatus('Browser tidak menyediakan akses kamera.','bad');
-    setResult('Buka scanner melalui alamat HTTPS menggunakan Chrome atau Safari terbaru.','error');
-    return;
-  }
-  if(typeof Html5Qrcode==='undefined'||typeof Html5QrcodeSupportedFormats==='undefined'){
-    setStatus('Pustaka QR belum dapat dimuat.','bad');
-    setResult('Periksa koneksi internet, lalu muat ulang halaman scanner.','error');
-    return;
-  }
-
-  scanner=new Html5Qrcode('reader',{
-    formatsToSupport:[Html5QrcodeSupportedFormats.QR_CODE],
-    verbose:false
-  });
-  startButton.disabled=false;
-  setStatus('Terhubung ke aplikasi. Kamera belum diaktifkan.','good');
-
-  function onQrDecoded(decodedText){
-    if(waitingForApp)return;
-    var now=Date.now();
-    if(decodedText===lastCode&&now-lastCodeAt<2200)return;
-    lastCode=decodedText;
-    lastCodeAt=now;
-    var prefix='DAYAH-DARUSSALAM:QR1:';
-    if(String(decodedText).indexOf(prefix)!==0){
-      setResult('QR bukan kartu santri DAYAH DARUSSALAM. Arahkan kamera ke QR yang benar.','error');
+  // Handshake: scanner mengirim HELLO ke opener. Aplikasi membalas INIT ke origin
+  // scanner yang terlihat oleh browser; scanner memakai event.origin aktual sebagai target.
+  window.addEventListener('message',function(event){
+    if(event.source!==window.opener)return;
+    var data=event.data||{};
+    if(data.type==='DAYAH_SCANNER_INIT'&&data.nonce===nonce&&validParentOrigin(event.origin)){
+      parentOrigin=event.origin;parentReady=true;startButton.disabled=false;
+      setStatus('Terhubung aman ke aplikasi DAYAH. Kamera siap diaktifkan.','good');
+      setResult('Koneksi terverifikasi. Tekan Mulai Kamera Belakang.');
+      window.opener.postMessage({type:'DAYAH_SCANNER_ACK',nonce:nonce},parentOrigin);
       return;
     }
-    waitingForApp=true;
-    setStatus('QR terbaca. Mengirim ke aplikasi...','good');
-    setResult('Memeriksa token QR dan mencatat kehadiran...');
-    try{
-      window.opener.postMessage({type:'DAYAH_QR_SCAN',nonce:nonce,qrText:decodedText},returnOrigin);
-    }catch(error){
-      waitingForApp=false;
-      setStatus('Tidak dapat menghubungi aplikasi.','bad');
-      setResult('Koneksi ke halaman aplikasi terputus. Tutup scanner dan buka kembali dari aplikasi.','error');
-    }
+    if(!parentReady||event.origin!==parentOrigin||data.type!=='DAYAH_QR_RESULT'||data.nonce!==nonce)return;
+    var result=data.result||{};waitingForApp=false;
+    if(result.success){setStatus('Absensi berhasil tersimpan di database.','good');setResult(result.message||'Absensi berhasil dicatat.','success');}
+    else if(result.duplicate){setStatus('Santri sudah tercatat pada sesi ini.','');setResult(result.message||'Santri sudah melakukan absensi.','duplicate');}
+    else{setStatus('Absensi tidak tersimpan.','bad');setResult(result.message||'Server tidak dapat memproses QR.','error');}
+  });
+
+  // Wildcard hanya dipakai untuk HELLO awal karena origin iframe Apps Script dapat
+  // berbeda dari origin halaman terluar. Pesan berikutnya memakai parentOrigin hasil handshake.
+  window.opener.postMessage({type:'DAYAH_SCANNER_HELLO',nonce:nonce},'*');
+  setStatus('Meminta verifikasi koneksi ke aplikasi...');
+  setResult('Menunggu persetujuan koneksi dari halaman DAYAH.');
+
+  function onQrDecoded(decodedText){
+    if(!parentReady||waitingForApp)return;
+    var now=Date.now();if(decodedText===lastCode&&now-lastCodeAt<2200)return;
+    lastCode=decodedText;lastCodeAt=now;
+    var prefix='DAYAH-DARUSSALAM:QR1:';
+    if(String(decodedText).indexOf(prefix)!==0){setResult('QR terbaca, tetapi bukan QR santri DAYAH DARUSSALAM.','error');return;}
+    var qrToken=String(decodedText).slice(prefix.length).trim();
+    if(!/^[a-f0-9]{40,160}$/i.test(qrToken)){setResult('QR terbaca tetapi format token tidak valid. Terbitkan ulang QR santri.','error');return;}
+    waitingForApp=true;setStatus('QR berhasil dibaca. Mengirim ke aplikasi...','good');setResult('Server sedang memvalidasi QR dan menyimpan absensi...');
+    try{window.opener.postMessage({type:'DAYAH_QR_SCAN',nonce:nonce,qrText:decodedText},parentOrigin);}
+    catch(error){waitingForApp=false;setStatus('Pengiriman ke aplikasi gagal.','bad');setResult(error.message||'Koneksi ke aplikasi terputus.','error');}
   }
-
-  window.addEventListener('message',function(event){
-    if(event.source!==window.opener||event.origin!==returnOrigin)return;
-    var data=event.data||{};
-    if(data.type!=='DAYAH_QR_RESULT'||data.nonce!==nonce)return;
-    var result=data.result||{};
-    waitingForApp=false;
-    if(result.success){
-      setStatus('Absensi berhasil dicatat. Siap untuk santri berikutnya.','good');
-      setResult(result.message||'Absensi berhasil dicatat.','success');
-    }else if(result.duplicate){
-      setStatus('Santri sudah tercatat pada sesi ini.','');
-      setResult(result.message||'Santri sudah melakukan absensi.','duplicate');
-    }else{
-      setStatus('QR belum berhasil diproses.','bad');
-      setResult(result.message||'Server tidak dapat memproses QR.','error');
-    }
-  });
-
   startButton.addEventListener('click',function(){
-    if(scannerRunning||!scanner)return;
-    startButton.disabled=true;
-    setStatus('Meminta izin kamera belakang...');
-    setResult('Izinkan akses kamera ketika browser menampilkan permintaan.');
-    var config={
-      fps:12,
-      qrbox:function(viewWidth,viewHeight){
-        var edge=Math.floor(Math.min(viewWidth,viewHeight)*0.76);
-        edge=Math.max(180,Math.min(360,edge));
-        return {width:edge,height:edge};
-      },
-      videoConstraints:{
-        facingMode:{ideal:'environment'},
-        width:{ideal:1920},
-        height:{ideal:1080},
-        frameRate:{ideal:30,max:30}
-      }
-    };
+    if(scannerRunning||!scanner||!parentReady)return;
+    startButton.disabled=true;setStatus('Meminta izin kamera belakang...');setResult('Izinkan akses kamera ketika browser meminta izin.');
+    var config={fps:15,qrbox:function(w,h){var edge=Math.max(180,Math.min(420,Math.floor(Math.min(w,h)*0.82)));return {width:edge,height:edge};},videoConstraints:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}}};
     scanner.start({facingMode:'environment'},config,onQrDecoded,function(){})
-      .then(function(){
-        scannerRunning=true;
-        startButton.disabled=true;
-        stopButton.disabled=false;
-        setStatus('Kamera aktif. Arahkan QR ke kotak pemindai.','good');
-        setResult('Pemindaian live berjalan. Tidak perlu mengambil foto.');
-      })
-      .catch(function(error){
-        startButton.disabled=false;
-        setStatus('Kamera tidak dapat diaktifkan.','bad');
-        setResult(error&&error.message?error.message:'Periksa izin kamera dan pastikan kamera tidak sedang digunakan aplikasi lain.','error');
-      });
+      .then(function(){scannerRunning=true;startButton.disabled=true;stopButton.disabled=false;setStatus('Kamera aktif. Arahkan QR ke area pemindai.','good');setResult('Pemindaian live berjalan.');})
+      .catch(function(error){startButton.disabled=false;setStatus('Kamera tidak dapat diaktifkan.','bad');setResult(error&&error.message?error.message:'Periksa izin kamera dan pastikan kamera tidak dipakai aplikasi lain.','error');});
   });
-
-  stopButton.addEventListener('click',function(){
-    if(!scannerRunning||!scanner)return;
-    stopButton.disabled=true;
-    scanner.stop().then(function(){
-      scannerRunning=false;
-      startButton.disabled=false;
-      setStatus('Kamera dihentikan.','');
-      setResult('Tekan Mulai Kamera Belakang untuk melanjutkan scan.');
-    }).catch(function(error){
-      stopButton.disabled=false;
-      setResult(error&&error.message?error.message:'Kamera gagal dihentikan.','error');
-    });
-  });
-  window.addEventListener('beforeunload',function(){
-    if(scanner&&scannerRunning){scanner.stop().catch(function(){});}
-  });
+  stopButton.addEventListener('click',function(){if(!scannerRunning||!scanner)return;stopButton.disabled=true;scanner.stop().then(function(){scannerRunning=false;startButton.disabled=!parentReady;stopButton.disabled=true;setStatus('Kamera dihentikan.','');setResult('Tekan Mulai Kamera Belakang untuk melanjutkan.');}).catch(function(error){stopButton.disabled=false;setResult(error&&error.message?error.message:'Kamera gagal dihentikan.','error');});});
+  window.addEventListener('beforeunload',function(){if(scanner&&scannerRunning)scanner.stop().catch(function(){});});
 })();
 </script>
 </body>
